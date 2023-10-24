@@ -1,0 +1,3 @@
+_ZN4sead7HeapMgr12sInstancePtrE = __main_start + 0x03642bf8;
+_ZN4sead7HeapMgr10sRootHeapsE = __main_start + 0x0363f700;
+_ZNK4sead7HeapMgr15findContainHeapEPKv = __main_start + 0x00189eac;
