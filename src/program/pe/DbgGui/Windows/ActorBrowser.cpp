@@ -3,9 +3,12 @@
 #include "engine/actor/ActorBase.h"
 #include "engine/actor/ActorMgr.h"
 #include "engine/actor/IActor.h"
+#include "game/actor/component/ItemGetRef.h"
+#include "game/actor/component/PlayerControlRef.h"
 #include "hook/trampoline.hpp"
 #include "imgui.h"
 #include "pe/Util/Log.h"
+#include "util/modules.hpp"
 #include <sead/heap/seadHeap.h>
 
 namespace pe {
@@ -68,9 +71,29 @@ namespace gui {
                     for (int i = 0; i < base->mActorComponents.size(); i++) {
                         engine::component::IActorComponent* component = base->mActorComponents[i];
                         if (component != nullptr) {
+                            ImGui::PushID(component);
+                            if (ImGui::Button("Goto")) {
+                                sharedData.memoryEditorGotoAddr = uintptr_t(component);
+                                sharedData.showMemoryEditor = true;
+                            }
+                            ImGui::PopID();
+                            ImGui::SameLine();
                             char buf[128] { 0 };
                             snprintf(buf, 128, "%s (%d)", component->mGyamlPath, i);
-                            if (ImGui::CollapsingHeader(buf)) { }
+                            if (ImGui::CollapsingHeader(buf)) {
+                                ImGui::Text("vtable: %p", *reinterpret_cast<uintptr_t*>(component) - exl::util::modules::GetTargetStart() - 16 + 0x7100000000);
+                                if (i >= 25 && i <= 28) {
+                                    game::actor::component::PlayerControlRef* controlComponent = static_cast<game::actor::component::PlayerControlRef*>(component);
+                                    if (ImGui::SliderInt("Item", reinterpret_cast<int*>(&controlComponent->mItemType1), 0, 10)) {
+                                        controlComponent->mItemType2 = controlComponent->mItemType1;
+                                        game::actor::component::ItemGetRef* itemComponent = static_cast<game::actor::component::ItemGetRef*>(base->mActorComponents[40]);
+                                        if (itemComponent) {
+                                            itemComponent->mItemType1 = controlComponent->mItemType1;
+                                            itemComponent->mItemType2 = controlComponent->mItemType1;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     ImGui::TreePop();
