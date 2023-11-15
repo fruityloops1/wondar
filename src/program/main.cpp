@@ -9,6 +9,7 @@
 #include "lib.hpp"
 #include "nn/fs.h"
 #include "pe/DbgGui/DbgGui.h"
+#include "pe/Hacks/FSHacks.h"
 #include "pe/Util/Log.h"
 #include "util/modules.hpp"
 #include "util/sys/mem_layout.hpp"
@@ -89,6 +90,8 @@ extern "C" void exl_main(void* x0, void* x1)
 
     nvnImGui::InstallHooks();
     nvnImGui::addDrawFunc(drawDbgGui);
+
+    pe::installFSHacks();
 
     exl::util::RwPages a(exl::util::GetSdkModuleInfo().m_Total.m_Start + 0x00399790, 4);
     *reinterpret_cast<u32*>(a.GetRw()) = 0xD65F03C0; // just dont crash, idiot
